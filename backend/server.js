@@ -40,7 +40,7 @@ app.get("/api", (req, res) => {
 // DATABASE ROUTE: Retrieve data from database
 app.get("/db", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM users");
+    const result = await pool.query("SELECT * FROM user");
 
     res.json({
       message: "Data from Database",
