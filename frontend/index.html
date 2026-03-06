@@ -6,44 +6,39 @@
   <title>Frontend - TP Docker</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
   <div class="container">
     <h1>TP Docker Avancé</h1>
     <h2>Frontend Statique</h2>
-
     <pre id="api-response">Loading API data...</pre>
     <pre id="db-response">Loading Database data...</pre>
   </div>
-
   <script>
     async function fetchData() {
+      // ✅ Fetch /api and /db independently so one failure doesn't block the other
       try {
-        // Fetch API status
         const apiResponse = await fetch("https://tp-docker-cicd-htky.onrender.com/api");
-        if (!apiResponse.ok) throw new Error("API request failed");
-
+        if (!apiResponse.ok) throw new Error(`API error: ${apiResponse.status}`);
         const apiData = await apiResponse.json();
         document.getElementById("api-response").innerText =
           JSON.stringify(apiData, null, 2);
+      } catch (error) {
+        document.getElementById("api-response").innerText = `Error: ${error.message}`;
+      }
 
-        // Fetch database data
+      try {
         const dbResponse = await fetch("https://tp-docker-cicd-htky.onrender.com/db");
-        if (!dbResponse.ok) throw new Error("Database request failed");
-
+        if (!dbResponse.ok) throw new Error(`DB error: ${dbResponse.status}`);
         const dbData = await dbResponse.json();
         document.getElementById("db-response").innerText =
           JSON.stringify(dbData, null, 2);
-
       } catch (error) {
-        document.getElementById("api-response").innerText =
-          `Error: ${error.message}`;
-        document.getElementById("db-response").innerText =
-          `Error: ${error.message}`;
+        document.getElementById("db-response").innerText = `Error: ${error.message}`;
       }
     }
 
-    setTimeout(fetchData, 1000);
+    // ✅ Use DOMContentLoaded instead of fragile setTimeout
+    document.addEventListener("DOMContentLoaded", fetchData);
   </script>
 </body>
 </html>
