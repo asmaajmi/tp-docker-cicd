@@ -16,17 +16,18 @@ const pool = new Pool({
   },
 });
 
-// ✅ CORS with origin function for better matching + error logging
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = [
+      const allowedExact = [
         "http://localhost:8080",
         "http://127.0.0.1:8080",
-        "https://tp-docker-cicd-neon.vercel.app", // ✅ no trailing slash
       ];
-      // Allow requests with no origin (Postman, curl, server-to-server)
-      if (!origin || allowedOrigins.includes(origin)) {
+
+      // ✅ Allow any Vercel preview or production deployment
+      const allowedPattern = /^https:\/\/tp-docker-cicd.*\.vercel\.app$/;
+
+      if (!origin || allowedExact.includes(origin) || allowedPattern.test(origin)) {
         callback(null, true);
       } else {
         callback(new Error(`CORS blocked for origin: ${origin}`));
