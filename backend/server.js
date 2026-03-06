@@ -1,30 +1,39 @@
-const express = require("express"); // Web framework
-const cors = require("cors"); // CORS management
-const { Pool } = require("pg"); // PostgreSQL client
-
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
 const app = express();
-const PORT = process.env.PORT || 3000; // Configurable port
+const PORT = process.env.PORT || 3000;
 
-// Database connection configuration
+// ✅ SSL + no Docker fallbacks for deployed environment
 const pool = new Pool({
-  host: process.env.DB_HOST || "db",
+  host: process.env.DB_HOST,
   port: process.env.DB_PORT || 5432,
-  user: process.env.DB_USER || "admin",
-  password: process.env.DB_PASSWORD || "secret",
-  database: process.env.DB_NAME || "mydb",
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  ssl: {
+    rejectUnauthorized: false, // ✅ Required for hosted PostgreSQL (Render, Supabase, etc.)
+  },
 });
 
-// CORS MIDDLEWARE: Allow cross-origin requests
+// ✅ CORS with origin function for better matching + error logging
 app.use(
   cors({
-    origin: [
-      "http://localhost:8080", // Frontend via host port
-      "http://127.0.0.1:8080", // Alternative localhost
-      "http://backend", 
-      "https://tp-docker-cicd-neon.vercel.app"// Docker service name (internal tests)
-    ],
-    methods: ["GET", "POST", "OPTIONS"], // Allowed HTTP methods
-    allowedHeaders: ["Content-Type"], // Allowed headers
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "https://tp-docker-cicd-neon.vercel.app", // ✅ no trailing slash
+      ];
+      // Allow requests with no origin (Postman, curl, server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
   })
 );
 
@@ -38,11 +47,10 @@ app.get("/api", (req, res) => {
   });
 });
 
-// DATABASE ROUTE: Retrieve data from database
+// DATABASE ROUTE
 app.get("/db", async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM "user"');
-
+    const result = await pool.query('SELECT * FROM "user"'); // ✅ quoted reserved keyword
     res.json({
       message: "Data from Database",
       data: result.rows,
@@ -58,7 +66,6 @@ app.get("/db", async (req, res) => {
   }
 });
 
-// START SERVER
 app.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
   console.log(`API endpoint: http://localhost:${PORT}/api`);
