@@ -50,7 +50,7 @@ app.get("/db", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({
-      message: "Database error",
+      message: "Database error please verify",
       error: err.message,
       success: false,
     });
