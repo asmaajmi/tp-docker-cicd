@@ -20,7 +20,7 @@
     async function fetchData() {
       try {
         // Fetch API status
-        const apiResponse = await fetch("http://localhost:3000/api");
+        const apiResponse = await fetch("https://tp-docker-cicd-htky.onrender.com/api");
         if (!apiResponse.ok) throw new Error("API request failed");
 
         const apiData = await apiResponse.json();
@@ -28,7 +28,7 @@
           JSON.stringify(apiData, null, 2);
 
         // Fetch database data
-        const dbResponse = await fetch("http://localhost:3000/db");
+        const dbResponse = await fetch("https://tp-docker-cicd-htky.onrender.com/db");
         if (!dbResponse.ok) throw new Error("Database request failed");
 
         const dbData = await dbResponse.json();
