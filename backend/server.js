@@ -20,7 +20,8 @@ app.use(
     origin: [
       "http://localhost:8080", // Frontend via host port
       "http://127.0.0.1:8080", // Alternative localhost
-      "http://backend", // Docker service name (internal tests)
+      "http://backend", 
+      "https://tp-docker-cicd-neon.vercel.app/"// Docker service name (internal tests)
     ],
     methods: ["GET", "POST", "OPTIONS"], // Allowed HTTP methods
     allowedHeaders: ["Content-Type"], // Allowed headers
