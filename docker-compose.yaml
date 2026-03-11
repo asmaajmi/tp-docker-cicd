@@ -29,7 +29,7 @@ services:
       - webnet
 
   db:
-    build: backend/database
+    build: database
     container_name: tp-db
     environment:
       - POSTGRES_USER=admin
