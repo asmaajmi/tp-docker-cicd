@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.4"
 
 services:
   backend:
@@ -9,7 +9,8 @@ services:
     networks:
       - webnet
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -40,6 +41,12 @@ services:
       - webnet
     ports:
       - "5432:5432" # Optional: local access to the database
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d mydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
 networks:
   webnet: # Custom bridge network for communication
