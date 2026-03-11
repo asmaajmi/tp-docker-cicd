@@ -67,8 +67,31 @@ app.get("/db", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// ✅ Auto-create and seed the users table if it doesn't exist
+async function initDB() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL
+      );
+    `);
+    await pool.query(`
+      INSERT INTO users (name, email) VALUES
+        ('Alice', 'alice@example.com'),
+        ('Bob', 'bob@example.com')
+      ON CONFLICT (email) DO NOTHING;
+    `);
+    console.log("✅ Database initialized successfully");
+  } catch (err) {
+    console.error("❌ Database initialization failed:", err.message);
+  }
+}
+
+app.listen(PORT, async () => {
   console.log(`Backend listening on port ${PORT}`);
   console.log(`API endpoint: http://localhost:${PORT}/api`);
   console.log(`DB endpoint: http://localhost:${PORT}/db`);
+  await initDB();
 });
